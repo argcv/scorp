@@ -20,15 +20,20 @@ export CGO_ENABLED=0
 #GOOS=linux
 export GOOS=${PLATFORM}
 
-
-for dir in $(find ./ -type d  -maxdepth 1 -mindepth 1 -exec basename '{}' \; ); do
+function go-build() {
+    local dir=$1
     if [[ ${dir} == "bin" ]]; then
         echo "skip bin ${dir}"
     elif [[ -f "${dir}/main.go" ]]; then
+        echo "compiling ${dir}/main.go"
         go build -o "${GOPATH}/bin/${dir}" "${dir}/main.go"
         echo "${dir}/main.go => ${GOPATH}/bin/${dir}"
     fi
-done
+}
+
+
+export -f go-build
+find ./ -type d  -maxdepth 1 -mindepth 1 -exec basename '{}' \; | xargs -P 64 -I{} bash -c 'go-build {}'
 
 unset GOOS
 unset CGO_ENABLED
