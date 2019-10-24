@@ -22,18 +22,18 @@ export GOOS=${PLATFORM}
 
 function go-build() {
     local dir=$1
+    local main="./cmd/${dir}/main.go"
     if [[ ${dir} == "bin" ]]; then
         echo "skip bin ${dir}"
-    elif [[ -f "${dir}/main.go" ]]; then
+    elif [[ -f ${main} ]]; then
         echo "compiling ${dir}/main.go"
-        go build -o "${GOPATH}/bin/${dir}" "${dir}/main.go"
-        echo "${dir}/main.go => ${GOPATH}/bin/${dir}"
+        go build -o "${GOPATH}/bin/${dir}" ${main}
+        echo "${main} => ${GOPATH}/bin/${dir}"
     fi
 }
 
-
 export -f go-build
-find ./ -type d  -maxdepth 1 -mindepth 1 -exec basename '{}' \; | xargs -P 64 -I{} bash -c 'go-build {}'
+find ./cmd/ -type d  -maxdepth 1 -mindepth 1 -exec basename '{}' \; | xargs -P 64 -I{} bash -c 'go-build {}'
 
 unset GOOS
 unset CGO_ENABLED
